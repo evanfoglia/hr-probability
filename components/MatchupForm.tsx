@@ -37,12 +37,14 @@ export default function MatchupForm({ onCalculate, loading }: MatchupFormProps) 
         label="Pitcher"
         value={pitcher}
         onChange={setPitcher}
+        hint="search by last name"
       />
 
       <PlayerSearch
         label="Hitter"
         value={batter}
         onChange={setBatter}
+        hint="search by last name"
       />
 
       {/* Platoon toggle */}

@@ -9,9 +9,10 @@ interface PlayerSearchProps {
   value: PlayerInfo | null;
   onChange: (player: PlayerInfo | null) => void;
   disabled?: boolean;
+  hint?: string;
 }
 
-export default function PlayerSearch({ label, value, onChange, disabled }: PlayerSearchProps) {
+export default function PlayerSearch({ label, value, onChange, disabled, hint }: PlayerSearchProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<PlayerInfo[]>([]);
   const [loading, setLoading] = useState(false);
@@ -69,7 +70,10 @@ export default function PlayerSearch({ label, value, onChange, disabled }: Playe
 
   return (
     <div className="relative">
-      <label className="block text-sm font-medium text-slate-400 mb-1">{label}</label>
+      <label className="block text-sm font-medium text-slate-400 mb-1">
+        {label}
+        {hint && <span className="text-slate-600 font-normal ml-2 text-xs">({hint})</span>}
+      </label>
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
         {loading && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 animate-spin" />}
@@ -93,7 +97,7 @@ export default function PlayerSearch({ label, value, onChange, disabled }: Playe
           }}
           onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
           disabled={disabled || !!value}
-          placeholder={`Search ${label.toLowerCase()} (4+ chars)...`}
+          placeholder={`Search ${label.toLowerCase()}...`}
           suppressHydrationWarning
           className="w-full bg-slate-800 border border-slate-600 rounded-lg pl-10 pr-10 py-2.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-60"
         />
