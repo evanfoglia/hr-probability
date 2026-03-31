@@ -148,7 +148,15 @@ export async function playerLookup(name: string): Promise<PlayerInfo[]> {
       team: (row.team || '') as string,
       position: (row.position || '') as string,
       id: row.key_mlbam as number,
-    })).filter(p => p.id > 0); // drop records with invalid IDs
+    })).filter(p => p.id > 0);
+
+    // Deduplicate by ID
+    const seen = new Set<number>();
+    return players.filter(p => {
+      if (seen.has(p.id)) return false;
+      seen.add(p.id);
+      return true;
+    }); // drop records with invalid IDs
 
     // Score: lower = better
     // 0 = exact match

@@ -107,7 +107,7 @@ export default function PlayerSearch({ label, value, onChange, disabled }: Playe
         <div className="absolute z-50 mt-1 w-full bg-slate-800 border border-slate-600 rounded-lg shadow-xl max-h-60 overflow-auto">
           {results.map((player) => (
             <button
-              key={`${player.id}-${player.name}`}
+              key={player.id}
               onMouseDown={() => handleSelect(player)}
               className="w-full px-4 py-3 text-left hover:bg-slate-700 flex items-center gap-3 border-b border-slate-700 last:border-0"
             >
