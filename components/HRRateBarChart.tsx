@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import type { BatterHRRate } from '@/lib/mcp';
 import { getPitchColor, normalizePitchName } from '@/lib/probability';
@@ -9,6 +10,12 @@ interface HRRateBarChartProps {
 }
 
 export default function HRRateBarChart({ data }: HRRateBarChartProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const chartData = data
     .map((d) => ({
       name: normalizePitchName(d.pitch),
@@ -16,6 +23,10 @@ export default function HRRateBarChart({ data }: HRRateBarChartProps) {
       color: getPitchColor(normalizePitchName(d.pitch)),
     }))
     .sort((a, b) => b.hr_pct - a.hr_pct);
+
+  if (!mounted) {
+    return <div className="h-52 bg-slate-800/50 rounded-xl animate-pulse" />;
+  }
 
   return (
     <div className="h-52">

@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import type { PitcherArsenal } from '@/lib/mcp';
 import { getPitchColor, normalizePitchName } from '@/lib/probability';
@@ -9,11 +10,21 @@ interface ArsenalPieChartProps {
 }
 
 export default function ArsenalPieChart({ data }: ArsenalPieChartProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const chartData = data.map((d) => ({
     name: normalizePitchName(d.pitch),
     value: d.pct,
     color: getPitchColor(normalizePitchName(d.pitch)),
   }));
+
+  if (!mounted) {
+    return <div className="h-52 bg-slate-800/50 rounded-xl animate-pulse" />;
+  }
 
   return (
     <div className="h-52">
