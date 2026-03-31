@@ -26,10 +26,11 @@ A clean, stathead-friendly web app that estimates home run probability for any M
 ├──────────────────┬──────────────────────────────────┤
 │  Matchup Panel   │   Results Panel                   │
 │  - Pitcher input │   - HR Prob big number            │
-│  - Hitter input  │   - Breakdown table               │
-│  - Ballpark      │   - Pie chart (arsenal)           │
-│  - Temperature   │   - Bar chart (HR rate by pitch) │
-│  - Calculate btn │   - Simulate 100 PAs button       │
+│  - Hitter input  │   - Pitcher Arsenal Table         │
+│  - Platoon       │   - Breakdown table               │
+│  - Calculate btn │   - Pie chart (arsenal)           │
+│                  │   - Bar chart (HR rate by pitch)  │
+│                  │   - Simulate 100 PAs button       │
 │                  │   - Methodology explainer          │
 └──────────────────┴──────────────────────────────────┘
 ```
@@ -46,9 +47,7 @@ A clean, stathead-friendly web app that estimates home run probability for any M
 - Validates both players selected before enabling Calculate
 
 ### Optional Inputs
-- **Ballpark:** Dropdown of MLB stadiums (for park factor adjustment)
-- **Temperature:** Number input (affects ball flight)
-- **Platoon:** Auto-detected from player handedness, toggleable
+- **Platoon:** Toggle for platoon advantage (+5% for RHB vs LHP or LHB vs RHP)
 
 ### Calculate Button
 - Disabled until both players selected
@@ -89,7 +88,7 @@ Before any calculation: "Select a pitcher and hitter to see HR probability"
 - Clear button when selected
 
 ### `<MatchupForm>` — left panel
-- Contains: pitcher search, hitter search, ballpark dropdown, temp input, platoon toggle, Calculate button
+- Contains: pitcher search, hitter search, platoon toggle, Calculate button
 - Calculate button: default, disabled, loading states
 
 ### `<ResultsPanel>` — right panel
@@ -114,8 +113,8 @@ Before any calculation: "Select a pitcher and hitter to see HR probability"
 - Mean, median, P10/P90 range
 
 ### `<MethodologyPanel>` — collapsible explainer
-- Shows formula: `HR_prob = Σ(pitcher_arsenal_pct[p] × hitter_HR_rate_vs_p[p])`
-- Explains park factor, temperature, platoon adjustments
+- Shows formula: `HR_prob = Σ(pitcher_arsenal_pct[p] × hitter_ISO_vs_p[p])`
+- Explains platoon adjustment
 - Links to statcast data sources
 
 ## 6. Technical Approach
@@ -150,7 +149,6 @@ hr-probability/
 ├── lib/
 │   ├── mcp.ts              # mcporter CLI wrapper
 │   ├── probability.ts       # HR probability calculation
-│   ├── parkFactors.ts      # Park factor data
 │   └── simulation.ts       # Monte Carlo simulator
 ├── package.json
 ├── tailwind.config.ts
@@ -166,13 +164,14 @@ hr-probability/
 - Returns: array of matching players (name, team, id, position)
 
 **POST /api/pitcher**
-- Input: `{ playerId: number }`
-- Calls: `mcporter call statcast statcast_pitcher_pitch_arsenal --args '{"name": "...", "year": 2025}'`
-- Returns: `{ arsenal: [{pitch, pct}], season_stats: {...} }`
+- Input: `{ playerName: string }`
+- Fetches recent game stats (last 30 days) + full 2024 season arsenal breakdown
+- Calls: `statcast_pitcher_arsenal_stats` + `pitching_stats_date_range`
+- Returns: `{ recent: {era, k_pct, bb_pct, whip, ip, games}, arsenal: [{pitch, pct}], arsenal_full: [{pitch_type, pitch_name, pct, pa, ba, slg, woba, whiff_pct, k_pct, est_ba, est_slg, est_woba, hard_hit_pct}], season_stats: {...} }`
 
 **POST /api/batter**
-- Input: `{ playerId: number }`
-- Calls: `mcporter call statcast statcast_batter_pitch_arsenal --args '{"name": "...", "year": 2025}'`
+- Input: `{ playerName: string }`
+- Calls: `statcast_batter_pitch_arsenal` for 2024 season
 - Returns: `{ HR_rates: [{pitch, hr_pct, barrel_pct, avg_exit_velo}], expected_stats: {...} }`
 
 ### Probability Formula
@@ -181,7 +180,7 @@ hr-probability/
 function computeHRProbability(
   pitcherArsenal: { pitch: string; pct: number }[],
   batterHRRates: { pitch: string; hr_pct: number }[],
-  options: { parkFactor: number; temperature: number; platoonBonus: number }
+  options: { platoonBonus: number }
 ): number {
   let hrProb = 0;
   for (const { pitch, pct } of pitcherArsenal) {
@@ -191,8 +190,6 @@ function computeHRProbability(
   }
   
   // Adjustments
-  hrProb *= options.parkFactor; // e.g., Yankee Stadium HR factor 1.15
-  if (options.temperature > 75) hrProb *= 1 + (options.temperature - 75) * 0.005;
   hrProb *= options.platoonBonus; // 1.05 for platoon advantage
   
   return Math.min(hrProb * 100, 50); // cap at 50%
