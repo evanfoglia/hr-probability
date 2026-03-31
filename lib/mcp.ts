@@ -135,15 +135,45 @@ function execMcporterNode(command: string): Promise<string> {
 
 export async function playerLookup(name: string): Promise<PlayerInfo[]> {
   try {
-    const command = `mcporter call statcast player_lookup 'player_name=${name}' 2>&1`;
+    const ql = name.toLowerCase().trim();
+    const words = ql.split(' ');
+
+    // Always search with the full query — statcast does substring matching
+    const command = `mcporter call statcast player_lookup 'player_name=${ql}' 2>&1`;
     const output = await execMcporterNode(command);
     const rows = parseTableWithHeader(output);
-    return rows.map(row => ({
-      name: `${row.name_first} ${row.name_last}`.trim(),
+
+    const players = rows.map(row => ({
+      name: `${row.name_first} ${row.name_last}`.trim().replace(/\b\w/g, c => c.toUpperCase()),
       team: (row.team || '') as string,
       position: (row.position || '') as string,
       id: row.key_mlbam as number,
     }));
+
+    // Score: lower = better
+    // 0 = exact match
+    // 1 = query starts name (e.g., "Shohei O" starts "Shohei Ohtani")
+    // 2 = first word starts a name part (e.g., "Shohei" starts "Shohei" in "Shohei Ohtani")
+    // 3 = other substring match (e.g., "Shohei" in "Ernie Shore")
+    function score(p: typeof players[0]): number {
+      const nl = p.name.toLowerCase();
+      if (nl === ql) return 0;
+      if (nl.startsWith(ql)) return 1;
+      // Check if any name part starts with any query word
+      const nameParts = nl.split(' ');
+      const firstWordMatch = words.some(w => nameParts.some(np => np.startsWith(w)));
+      if (firstWordMatch) return 2;
+      return 3;
+    }
+
+    players.sort((a, b) => {
+      const sa = score(a);
+      const sb = score(b);
+      if (sa !== sb) return sa - sb;
+      return a.name.length - b.name.length;
+    });
+
+    return players;
   } catch (error) {
     console.error('playerLookup error:', error);
     throw error;
