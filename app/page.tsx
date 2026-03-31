@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { CircleDot } from 'lucide-react';
 import MatchupForm from '@/components/MatchupForm';
 import ResultsPanel from '@/components/ResultsPanel';
@@ -16,6 +16,11 @@ export default function Home() {
   const [batterData, setBatterData] = useState<BatterData | null>(null);
   const [result, setResult] = useState<ProbabilityResult | null>(null);
   const [platoonBonus, setPlatoonBonus] = useState(1.0);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleCalculate = useCallback(async (params: {
     pitcher: PlayerInfo;
@@ -109,14 +114,22 @@ export default function Home() {
           {/* Right: Results Panel */}
           <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50">
             <h2 className="text-lg font-semibold text-slate-200 mb-5">Results</h2>
-            <ResultsPanel
-              pitcherData={pitcherData}
-              batterData={batterData}
-              result={result}
-              platoonBonus={platoonBonus}
-              loading={loading}
-              error={error}
-            />
+            {mounted ? (
+              <ResultsPanel
+                pitcherData={pitcherData}
+                batterData={batterData}
+                result={result}
+                platoonBonus={platoonBonus}
+                loading={loading}
+                error={error}
+              />
+            ) : (
+              <div className="space-y-4 animate-pulse">
+                <div className="h-48 bg-slate-800 rounded-2xl" />
+                <div className="h-32 bg-slate-800 rounded-xl" />
+                <div className="h-48 bg-slate-800 rounded-xl" />
+              </div>
+            )}
           </div>
         </div>
       </main>
