@@ -22,7 +22,7 @@ export default function PlayerSearch({ label, value, onChange, disabled }: Playe
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    if (query.length < 2) {
+    if (query.length < 4) {
       setResults([]);
       setShowDropdown(false);
       return;
@@ -93,7 +93,7 @@ export default function PlayerSearch({ label, value, onChange, disabled }: Playe
           }}
           onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
           disabled={disabled || !!value}
-          placeholder={`Search ${label.toLowerCase()}...`}
+          placeholder={`Search ${label.toLowerCase()} (4+ chars)...`}
           className="w-full bg-slate-800 border border-slate-600 rounded-lg pl-10 pr-10 py-2.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-60"
         />
       </div>
@@ -120,7 +120,7 @@ export default function PlayerSearch({ label, value, onChange, disabled }: Playe
         </div>
       )}
 
-      {showDropdown && query.length >= 2 && results.length === 0 && !loading && (
+      {showDropdown && query.length >= 4 && results.length === 0 && !loading && (
         <div className="absolute z-50 mt-1 w-full bg-slate-800 border border-slate-600 rounded-lg shadow-xl px-4 py-3">
           <p className="text-slate-400 text-sm">No players found for &quot;{query}&quot;</p>
         </div>

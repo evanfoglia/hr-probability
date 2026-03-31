@@ -6,9 +6,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { name } = body;
 
-    if (!name || typeof name !== 'string' || name.trim().length < 2) {
+    if (!name || typeof name !== 'string' || name.trim().length < 4) {
       return NextResponse.json(
-        { error: 'Name must be at least 2 characters' },
+        { error: 'Name must be at least 4 characters' },
         { status: 400 }
       );
     }
