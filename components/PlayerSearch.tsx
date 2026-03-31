@@ -94,6 +94,7 @@ export default function PlayerSearch({ label, value, onChange, disabled }: Playe
           onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
           disabled={disabled || !!value}
           placeholder={`Search ${label.toLowerCase()} (4+ chars)...`}
+          suppressHydrationWarning
           className="w-full bg-slate-800 border border-slate-600 rounded-lg pl-10 pr-10 py-2.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-60"
         />
       </div>
@@ -106,7 +107,7 @@ export default function PlayerSearch({ label, value, onChange, disabled }: Playe
         <div className="absolute z-50 mt-1 w-full bg-slate-800 border border-slate-600 rounded-lg shadow-xl max-h-60 overflow-auto">
           {results.map((player) => (
             <button
-              key={player.id}
+              key={`${player.id}-${player.name}`}
               onMouseDown={() => handleSelect(player)}
               className="w-full px-4 py-3 text-left hover:bg-slate-700 flex items-center gap-3 border-b border-slate-700 last:border-0"
             >

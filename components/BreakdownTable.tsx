@@ -51,8 +51,8 @@ export default function BreakdownTable({ breakdown, totalProb }: BreakdownTableP
           </tr>
         </thead>
         <tbody>
-          {sorted.map((row) => (
-            <tr key={row.pitch} className="border-b border-slate-700/50 hover:bg-slate-800/50">
+          {sorted.map((row, idx) => (
+            <tr key={`${row.pitch}-${idx}`} className="border-b border-slate-700/50 hover:bg-slate-800/50">
               <td className="py-2.5">
                 <div className="flex items-center gap-2">
                   <div

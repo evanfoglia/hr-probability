@@ -53,10 +53,10 @@ export default function Home() {
       const batterData: BatterData = await batterRes.json();
 
       if (!pitcherData.arsenal || pitcherData.arsenal.length === 0) {
-        throw new Error(`No statcast data for ${params.pitcher.name}. They may not have thrown enough in the current data window.`);
+        throw new Error(`${params.pitcher.name} — no 2024 pitch data found (may not have pitched recently, e.g. due to injury). Try a different pitcher.`);
       }
       if (!batterData.hr_rates || batterData.hr_rates.length === 0) {
-        throw new Error(`No recent statcast data for ${params.batter.name}. They may not have batted enough in the current data window.`);
+        throw new Error(`${params.batter.name} — no 2024 batting data found. Try a different hitter.`);
       }
 
       setPlatoonBonus(params.platoonBonus);
