@@ -4,7 +4,7 @@ import { getBatterStats } from '@/lib/mcp';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { playerName, year = 2024 } = body;
+    const { playerName, year = 2025 } = body;
 
     if (!playerName) {
       return NextResponse.json({ error: 'playerName is required' }, { status: 400 });

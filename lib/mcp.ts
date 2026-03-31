@@ -221,7 +221,7 @@ export async function getPitcherRecentStats(playerName: string, daysBack: number
 }
 
 // Get full arsenal breakdown for a pitcher (2024 season - most complete dataset)
-export async function getPitcherFullArsenal(playerName: string, year: number = 2024): Promise<PitchTypeStats[]> {
+export async function getPitcherFullArsenal(playerName: string, year: number = 2025): Promise<PitchTypeStats[]> {
   try {
     const command = `mcporter call statcast statcast_pitcher_arsenal_stats 'year=${year}' 'player_name=${playerName}' 2>&1`;
     const output = await execMcporterNode(command);
@@ -275,7 +275,7 @@ export async function getPitcherData(playerName: string): Promise<PitcherData> {
   };
 }
 
-export async function getBatterStats(playerName: string, year: number = 2024): Promise<BatterData> {
+export async function getBatterStats(playerName: string, year: number = 2025): Promise<BatterData> {
   try {
     const command = `mcporter call statcast statcast_batter_pitch_arsenal 'year=${year}' 'player_name=${playerName}' 2>&1`;
     const output = await execMcporterNode(command);
@@ -327,6 +327,6 @@ export function setCache<T>(key: string, data: T): void {
   try { localStorage.setItem(key, JSON.stringify({ data, timestamp: Date.now() })); } catch { /* ignore */ }
 }
 
-export function getCacheKey(type: string, id: number, year: number = 2024): string {
+export function getCacheKey(type: string, id: number, year: number = 2025): string {
   return `hr-prob-${type}-${id}-${year}`;
 }
